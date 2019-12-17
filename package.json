@@ -1,0 +1,20 @@
+{
+  "name": "ant-desiogn-pro-one",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "umi dev",
+    "build": "umi build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "umi": "^2.12.6"
+  },
+  "dependencies": {
+    "umi-plugin-react": "^1.14.9"
+  }
+}
