@@ -16,10 +16,6 @@ export default {
       //可以理解为路由的嵌套/qwe/asd/hello 
       routes: [
         {
-          path: 'index',
-          component: './index'
-        },
-        {
           path: 'list', // /qwe/asd/hello访问这里 
           component: '../pages/list/index',
         },

@@ -18,11 +18,6 @@ const routes = [
     component: require('../../layouts').default,
     routes: [
       {
-        path: '/index/index',
-        component: require('../index').default,
-        exact: true,
-      },
-      {
         path: '/index/list',
         component: require('../list/index').default,
         exact: true,

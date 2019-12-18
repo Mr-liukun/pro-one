@@ -9,32 +9,42 @@ export default {
 
   effects : {
     *showListEf( { _ }, {call, put}) {
-        const url = 'http://localhost:8000/index/list';
+        const url = 'http://localhost:8080/index/list';
         const payload = yield call(request, url);
         yield put({type: 'showListRe', payload});          
     },
-    *addOne( {payload,flag}, {call, put} ) {
 
-      console.log("addOne flag", flag);
-      yield  put({type:'addOneItem', payload,flag})
+    *addOne( {payload,flag, id}, {call, put} ) {
+      if(flag == "add") {
+        var ur = 'http://localhost:8080/index/addone?name=' + payload.name +'&age='+payload.age+'&desc='+payload.desc;
+        var result = yield call(request, ur);
+        yield  put({type:'addOneItem', payload,flag, result})
+      }else if(flag == "edit") {
+        var ur = 'http://localhost:8080/index/updateone?id='+id+'&name=' + payload.name +'&age='+payload.age+'&desc='+payload.desc;       
+        var result = yield call(request, ur);
+        yield  put({type:'addOneItem', payload,flag, result,id})
+      } 
     },
+
     *delOne({payload}, {call, put}) {
-      console.log("pay：", payload);
-      yield  put({type:'delOneItem', payload});
+      var ur = 'http://localhost:8080/index/delone?id=' + payload;
+      var result = yield call(request, ur);
+      yield put({type:'delOneItem', result,payload});
     },
+
     *editOneShow({payload,flag}, {call, put}) {
-      // const url = 'http://localhost:8000/index/list';
-      // const allList = yield call(request, url);
-      // yield put({type:'editOneShowItem', payload, allList})
       console.log("editOneShow payload:", payload);
       yield put({type:'editOneShowItem', payload,flag});
     },
+
     *search({name, age, desc}, {call, put}) {
-      console.log("name, age,desc:",name, age, desc);
-      yield put({type:'searchList', name, age, desc});
-    }
-
-
+      if(age == undefined) {
+        age = "";
+      }
+      var ur = 'http://localhost:8080/index/search?name=' + name +'&age='+age+'&desc='+desc;
+      var reList = yield call(request, ur);
+      yield put({type:'searchList', reList});
+    },
   },
 
   reducers: {
@@ -45,18 +55,17 @@ export default {
       }
     },
 
-    addOneItem(state, {type, payload,flag}) {
-      console.log("addOneItem payload:", payload);
-
+    addOneItem(state, {type, payload,flag,result,id}) {
       const newList = state.datalist;
-
-      if(flag === "add") {
+      if(flag === "add" && result.message == "ok") { // 添加
+        payload.id = result.content;    
         return {
           datalist: [...newList, payload],
         }
-      } else {
+      } else if(flag === "edit" && result.message == "ok") { // 更新
         for(var i=0; i<newList.length; i++) {
-          if(newList[i].id === payload.id) {//为0为添加
+          if(newList[i].id == id) {
+            payload.id = id;
             newList[i] = payload;
             break;
           }
@@ -67,12 +76,15 @@ export default {
       }    
     },
 
-    delOneItem(state, {type, payload}) {
+    delOneItem(state, {type, result, payload}) {
       const newList = state.datalist;
-      for(var i=0; i<newList.length; i++){
-        if(newList[i].id === payload) {
-          newList.splice(i, 1);
-          break;
+      if(result.message == "ok") {
+        const newList = state.datalist;
+        for(var i=0; i<newList.length; i++){
+          if(newList[i].id === payload) {
+            newList.splice(i, 1);
+            break;
+          }
         }
       }
       return {
@@ -84,20 +96,18 @@ export default {
     editOneShowItem(state, {type, payload,flag}) {
       const newList = state.datalist;
       var editobj= {};
-
-      if(flag === "add") {
+      if(flag === "add") { //新增时表单的显示应为空，既input框中没有数据
         return {
           editobj: editobj,
           datalist: newList,
         }
       }else{
-        for(var i=0; i<newList.length; i++){
+        for(var i=0; i<newList.length; i++){ //edit时表单中应有数据
           if(newList[i].id === payload) {
             editobj = newList[i];
             break;
           }
         }
-        console.log("editOneShowItem editobj:", editobj);
         return {
           editobj: editobj,
           datalist: newList,
@@ -105,20 +115,10 @@ export default {
       }
     },
 
-    searchList(state, {type, name, age, desc}) {
-      const list = state.datalist;
-      var rlist = [];
-      for(var i=0; i< list.length; i++) {
-        if((name==="" || list[i].name===name) && (age==undefined ||list[i].age == age) && (desc==="" || list[i].desc===desc)){
-          rlist = [...rlist, list[i]];
-        }
-      }
-      console.log("rlist:", rlist);
+    searchList(state, {type, reList}) {
       return {
-        datalist: rlist,
+        datalist: reList,
       }
-
-
     }
   },
 }

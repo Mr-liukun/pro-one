@@ -8,6 +8,7 @@ const namespace = "list";
   ({ list }) => ({
     list,
 }))
+@Form.create()
 class List extends React.Component {
 
   state = {
@@ -15,15 +16,11 @@ class List extends React.Component {
     flag: "",
     name:"",
     age:undefined,
-    desc:""
-
+    desc:"",
+    id:undefined
   }
 
   columns = [
-    {
-      title: 'id',
-      dataIndex: 'id'
-    },
     {
       title: '名称',
       dataIndex: 'name'
@@ -50,20 +47,11 @@ class List extends React.Component {
     }
   ];
 
-
   componentDidMount() {
     this.props.dispatch({
       type: `${namespace}/showListEf`,
     })
   };
-
-  //展示对话框
-  // showModal = () => {
-  //   this.setState({
-  //     visible: true,
-  //   })
-
-  // };
 
   //取消会话框
   modalCancel = () => {
@@ -74,7 +62,6 @@ class List extends React.Component {
   }
 
   modalOk = () => {
-
     const { dispatch, form: { validateFields } } = this.props;
     validateFields((err, values) => {
       if (!err) {
@@ -82,6 +69,7 @@ class List extends React.Component {
           type: "list/addOne",
           payload: values,
           flag: this.state.flag,
+          id:this.state.id,
         });
         this.setState({
           visible: false,
@@ -98,7 +86,6 @@ class List extends React.Component {
       type: "list/delOne",
       payload: id,
     });
-    //他妈的
     this.setState({
       datalist: datalist
     })
@@ -115,6 +102,7 @@ class List extends React.Component {
     this.setState({
       visible: true, 
       flag: flag,
+      id: id
     });
 
   }
@@ -144,17 +132,7 @@ class List extends React.Component {
   }
 
   submit = (e) => {
-   
-    
     const { dispatch } = this.props;
-    // validateFields((err, values) => {
-    //   if (!err) {
-    //     dispatch({
-    //       type: "list/addOne",
-    //       payload: values,
-    //     });
-    //   }
-    // });
     dispatch({
       type: 'list/search',
       name: this.state.name,
@@ -198,17 +176,6 @@ class List extends React.Component {
           />
           <Modal destroyOnClose={true} forceRender={true} title="新建记录" visible={this.state.visible} onOk={this.modalOk} onCancel={this.modalCancel} flag={0}>
             <Form>
-              <Form.Item label="id">
-                {
-                  getFieldDecorator('id', {
-                    rules: [{ required: true }],
-                    initialValue: editobj.id  
-                  })
-                  (
-                    <Input placeholder="请输入唯一编号" />
-                  )
-                }
-              </Form.Item>
               <Form.Item label="名称">
                 {getFieldDecorator('name', {
                   rules: [{ required: true }],
@@ -240,7 +207,6 @@ class List extends React.Component {
     );
   }
 }
-
 //等于this.props.list //list为namespace的名字 namespace = 'list'
 
 // function mapStateToProps(state) {
@@ -251,10 +217,12 @@ class List extends React.Component {
 //     cardsLoading: state.loading.effects['list/showListEf'],
 //   }
 // }
-
+ 
 
 //export default connect(mapStateToProps)(Form.create()(List));
-export default connect()(Form.create()(List));
+//export default connect()(Form.create()(List));
+export default List;
+
 
 
 
